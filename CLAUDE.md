@@ -28,7 +28,7 @@ The marketplace has three roles — **Buyer**, **Provider**, and **Handoff Agent
 | **Polkadot Triangle** | Polkadot's app paradigm: a **Host** (wallet app, e.g. Polkadot desktop or dot.li) runs **Products** (mini-apps) in a sandbox and lends them its signer. LocalDOT is a Product. |
 | **Statement Store** | Decentralized topic-routed messaging (People chain). LocalDOT uses it for trade **request / accept-decline / meetup proposals / live status** — **not** open chat. Cleartext in V1. |
 | **Bulletin Chain** | Ephemeral bulk storage (offer metadata, profile photos, handover videos), content-addressed by CID and fetched via an IPFS gateway. |
-| **Hollar** | The intended digital-dollar stablecoin (≈ \$1). **Conceptual today** — the deployed escrow moves the chain-native token (PAS on testnet), priced \$1. |
+| **Token** | The digital token being exchanged. **V1 trades a single token** priced at \$1; the deployed escrow moves the chain-native token (PAS on testnet), priced \$1. No specific token brand is assumed — a fork can trade any token. |
 | **ZKPassport** | Optional proof-of-personhood: an off-chain zero-knowledge passport proof; only a one-way hash is recorded on-chain (`ZKPassportRegistry`). Replaces the old "DIM1 / PoP" placeholder. |
 | **Contextual Alias** | Privacy-preserving per-context identifier (a user appears under a per-context nickname). |
 | **Escrow** | The on-chain hold-and-release mechanism inside `P2PMarket.sol`; holds the **native token** via `msg.value`. |
@@ -293,7 +293,7 @@ The polished pitch is ahead of what the contracts currently enforce. Keep these 
 
 | Area | Reality today | Future |
 |------|---------------|--------|
-| **Hollar stablecoin** | Escrow moves the native token (PAS), priced \$1. "Hollar" is conceptual. | Integrate a real digital-dollar stablecoin (likely ERC-20 / asset). |
+| **Token / stablecoin** | Escrow moves the chain-native token (PAS), priced \$1. No specific token brand is assumed. | Integrate a real stablecoin or other token (likely ERC-20 / asset). |
 | **Agent slashing** | Stake is staked, shown, and frozen during active trades, but **never slashed** — no `DEFAULTED` state, no `claimAgentDefault`. Signaling only. | Add `DEFAULTED` + pickup-timeout slash of `min(amount, stake)` to the provider. |
 | **Disputes / reputation** | None on-chain. Safety = escrow + 24h timeout + mutual cancel. | Dispute resolution; ReputationCore. |
 | **Multi-asset / currency** | One token, USD only. | Multiple assets / fiat currencies. |

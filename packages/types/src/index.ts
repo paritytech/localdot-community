@@ -71,7 +71,7 @@ export interface Offer {
   lat: number;
   lon: number;
   radiusKm: number;
-  asset: "HOLLAR";
+  asset: string;
   fee: string | null; // null for buyers
   minAmount: string;
   maxAmount: string;
@@ -101,4 +101,4 @@ export interface ChatMessage {
 // Protocol constants
 export const CONFIRMATION_TIMEOUT = 24 * 60 * 60; // 24 hours in seconds
 export const OFFER_TTL = 14 * 24 * 60 * 60; // 14 days in seconds
-export const MIN_TRADE_AMOUNT = "1"; // 1 HOLLAR
+export const MIN_TRADE_AMOUNT = "1"; // 1 token

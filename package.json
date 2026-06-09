@@ -2,7 +2,7 @@
   "name": "localdot",
   "version": "1.0.0",
   "private": true,
-  "description": "Peer-to-peer cash-to-Hollar exchange on Polkadot",
+  "description": "Peer-to-peer cash-to-token exchange on Polkadot",
   "license": "GPL-3.0-only",
   "repository": {
     "type": "git",

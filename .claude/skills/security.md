@@ -212,7 +212,7 @@ pnpm audit --audit-level=high
 > **What this repo actually does.** Two Solidity files in
 > [`packages/contracts/contracts/`](../../packages/contracts/contracts/):
 > `P2PMarket.sol` (escrows the **chain-native token** via `msg.value` / `.call{value:}` — PAS on
-> testnet, "Hollar" is a conceptual USD-pegged display label, **not** an ERC-20) and
+> testnet, the traded token is a conceptual USD-pegged display label, **not** an ERC-20) and
 > `ZKPassportRegistry.sol`. Neither inherits OpenZeppelin (it's an unused devDependency).
 > Contracts are **non-upgradeable** — no proxy, no UUPS, no initializer.
 

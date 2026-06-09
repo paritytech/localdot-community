@@ -1,7 +1,7 @@
 {
   "name": "LocalDOT",
   "version": "1.0.0",
-  "description": "Peer-to-peer cash-to-Hollar exchange on Polkadot",
+  "description": "Peer-to-peer cash-to-token exchange on Polkadot",
   "author": "LocalDOT Team",
   "homepage": "https://localdot.io",
   "permissions": {

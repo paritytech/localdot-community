@@ -70,7 +70,7 @@ optimizer_runs = 200
 2. **Gas Prices**: Generally lower than Ethereum mainnet
 3. **Block Time**: ~6 seconds (faster than Ethereum)
 4. **No Etherscan**: Use **Blockscout** (`blockscout-paseo-next`) for exploration
-5. **No ERC-20 escrow asset**: The "Hollar" Digital Dollar is **conceptual only** (priced USD = 1.00 on-chain). There is no IERC20 / `transferFrom` / `approve` / pUSD anywhere — escrow uses the chain's native PAS via `msg.value`.
+5. **No ERC-20 escrow asset**: The traded token is **conceptual only** as a distinct asset (priced USD = 1.00 on-chain). There is no IERC20 / `transferFrom` / `approve` anywhere — escrow uses the chain's native PAS via `msg.value`.
 
 ## Deployment
 
@@ -125,7 +125,7 @@ Tests run with `hardhat test` (Mocha/Chai/ethers via `@nomicfoundation/hardhat-t
 |---------|---------------|---------|
 | Use Moonbeam | Not our target chain | MUST use Asset Hub Next EVM (`420420417`) |
 | Target retired preview networks | Retired/stale | MUST target Paseo AH Next eth-rpc |
-| Treat escrow asset as ERC-20 / HOLLAR / pUSD | Escrow uses native PAS via `msg.value` | MUST use native token, never `transferFrom`/`approve` |
+| Treat escrow asset as an ERC-20 token | Escrow uses native PAS via `msg.value` | MUST use native token, never `transferFrom`/`approve` |
 | Hardcode RPC URLs in scripts | Not portable across environments | MUST read from `.env` / [hardhat.config.ts](../../packages/contracts/hardhat.config.ts) |
 | Target `evm_version: london` | Output is PolkaVM, not EVM bytecode | MUST compile solc 0.8.28 + `viaIR` via resolc |
 | Use Etherscan verification | Not supported on Asset Hub | MUST use Blockscout (`blockscout-paseo-next`) |

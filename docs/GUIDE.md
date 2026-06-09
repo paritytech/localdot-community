@@ -165,7 +165,7 @@ An agent turns *"meet a stranger with a bag of cash"* into *"go to a known shop 
 
 | Word | What it means here |
 |------|--------------------|
-| **Digital dollar / Hollar** | A token meant to be worth about \$1. It's the "digital cash" you swap for. *(Note: on the current test network the app actually moves Polkadot's native test token, PAS, priced at \$1 — a real stablecoin like Hollar is on the roadmap.)* |
+| **Digital token** | A token meant to be worth about \$1. It's the "digital cash" you swap for. *(Note: on the current test network the app actually moves Polkadot's native test token, PAS, priced at \$1 — integrating a real stablecoin is on the roadmap.)* |
 | **Escrow** | The automated middleman. The smart contract locks the seller's tokens and only releases them when the right people confirm the swap — or refunds them if the deal stalls. |
 | **Asset Hub** | The Polkadot chain that runs LocalDOT's smart contracts — the ledger where offers, agents, and the locked money live. |
 | **Bulletin Chain** | A short-term storage chain for bigger data: listing details, locations, profile photos, handover videos. Data here is meant to expire automatically so nothing piles up forever. |
@@ -328,7 +328,7 @@ LocalDOT is a working V1, but parts of the long-term vision are still ahead. In 
 - ✅ Encrypted profile photos.
 
 **On the roadmap (designed, not yet enforced on-chain)**
-- ⏳ **A real Hollar stablecoin.** Today the escrow moves the native test token (PAS), priced \$1; integrating an actual digital-dollar stablecoin is future work.
+- ⏳ **A real stablecoin.** Today the escrow moves the native test token (PAS), priced \$1; integrating an actual stablecoin (or other token) is future work.
 - ⏳ **Agent slashing.** The insurance deposit is visible and frozen during trades, but the contract can't yet *pay it out* to a wronged provider (the `DEFAULTED` state / slashing path isn't implemented). For now the stake is a trust signal, not enforced collateral.
 - ⏳ **Reputation** and **dispute resolution** — none on-chain yet; safety is escrow + timeout + mutual cancel.
 - ⏳ **Multi-asset / multi-currency** — USD and a single token only for now.
