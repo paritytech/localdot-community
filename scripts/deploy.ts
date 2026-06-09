@@ -216,10 +216,14 @@ function publishDapp(command: string[], domain: string, seed: string): void {
   ui.step(`bulletin-deploy --env ${BULLETIN_ENV} → ${domain}…`);
   const [bin, ...prefixArgs] = command;
   const args = [...prefixArgs, "--env", BULLETIN_ENV, WEB_DIST, domain];
-  // bulletin-deploy merkleizes via a local IPFS (kubo); if it isn't installed,
-  // fall back to its pure-JS merkleizer so no kubo install is required.
-  if (spawnSync("ipfs", ["--version"], { encoding: "utf8" }).status !== 0) {
-    ui.info("ipfs (kubo) not found — using --js-merkle (pure-JS merkleization).");
+  // bulletin-deploy merkleizes via a local IPFS (kubo); if it isn't usable, fall
+  // back to its pure-JS merkleizer so no kubo install/init is required. Probe a
+  // repo-bound command (`ipfs repo stat`) rather than `--version`: the binary can
+  // be present while the repo is uninitialized (no ~/.ipfs), and `--version`
+  // passes regardless — `ipfs add` would then abort with "no IPFS repo found".
+  const kuboReady = spawnSync("ipfs", ["repo", "stat"], { encoding: "utf8" }).status === 0;
+  if (!kuboReady) {
+    ui.info("ipfs (kubo) not available or not initialized — using --js-merkle (pure-JS merkleization).");
     args.push("--js-merkle");
   }
   const result = spawnSync(bin, args, {
