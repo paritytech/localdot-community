@@ -32,13 +32,15 @@ export const NETWORKS = {
   "paseo-next-v2": {
     key: "paseo-next-v2",
     displayName: "Paseo Asset Hub Next (v2)",
-    // ⚠ polkadot-desktop / w3s-conference use 0xbf0488… for this network id
-    // (re-genesised 2026-06-01). If host routing rejects the chain, refresh
-    // these via the papi sync tooling and update them here.
+    // Genesis hashes verified against the live chains on 2026-06-09, after the
+    // 2026-06-01 re-genesis. These MUST match the host's environment registry
+    // (polkadot-desktop's `paseo-next-v2` entry) or host routing rejects the
+    // chain with "Host doesn't support it". Re-verify with
+    // `chain_getBlockHash(0)` against each RPC if routing starts failing.
     assetHubGenesis:
-      "0x173cea9df45656cf612c8b8ece56e04e9a693c69cfaac47d3628dae735067af8",
+      "0xbf0488dbe9daa1de1c08c5f743e26fdc2a4ecd74cf87dd1b4b1eeb99ae4ef19f",
     peopleGenesis:
-      "0x053e1a785bb0990b98768124d9609e963d9ca3558f5ac6e90a4297aaa0a0bd4b",
+      "0xc5af1826b31493f08b7e2a823842f98575b806a784126f28da9608c68665afa5",
     bulletinGenesis:
       "0x8cfe6717dc4becfda2e13c488a1e2061ff2dfee96e7d031157f72d36716c0a22",
   },
