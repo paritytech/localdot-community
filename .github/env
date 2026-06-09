@@ -1,9 +1,8 @@
 VITE_RPC_URL=https://eth-rpc-paseo-next.polkadot.io
 VITE_CHAIN_ID=420420417
 VITE_NETWORK_NAME=Paseo Asset Hub Next
-VITE_ASSET_HUB_ENDPOINT=wss://paseo-asset-hub-next-rpc.polkadot.io
+VITE_NETWORK=paseo-next-v2
 VITE_BULLETIN_ENDPOINT=wss://paseo-bulletin-next-rpc.polkadot.io
-VITE_PEOPLE_CHAIN_ENDPOINT=wss://paseo-people-next-system-rpc.polkadot.io
 VITE_IPFS_GATEWAY=https://paseo-bulletin-next-ipfs.polkadot.io/ipfs/
 # Contracts deployed on Paseo Asset Hub Next (v2)
 VITE_P2PMARKET_ADDRESS=0x86a9F3fe05CA4Bba050CF271Ac64fDF0D893F09E

@@ -10,12 +10,10 @@ import { DEFAULT_CHAIN } from "./lib/constants";
 interface Env {
   VITE_RPC_URL: string;
   VITE_CHAIN_ID: number;
+  /** Network key selecting the chain set (see lib/host/networks.ts). Defaults to paseo-next-v2. */
+  VITE_NETWORK?: string;
   VITE_P2PMARKET_ADDRESS?: string;
   VITE_ZKPASSPORT_REGISTRY_ADDRESS?: string;
-  /** Substrate WSS for Asset Hub Next (Revive pallet). Defaults to Paseo Next v2 public RPC. */
-  VITE_ASSET_HUB_ENDPOINT?: string;
-  VITE_BULLETIN_ENDPOINT?: string;
-  VITE_PEOPLE_CHAIN_ENDPOINT?: string;
   VITE_IPFS_GATEWAY?: string;
   /** SS58 address used as origin for read-only contract queries (on Paseo Next v2 every account is auto-mapped, so any valid SS58 works). */
   VITE_READONLY_ORIGIN: string;
@@ -38,12 +36,10 @@ function getEnv(): Env {
   return {
     VITE_RPC_URL: import.meta.env.VITE_RPC_URL || DEFAULT_CHAIN.rpcUrl,
     VITE_CHAIN_ID: rawChainId ? Number(rawChainId) : DEFAULT_CHAIN.chainId,
+    VITE_NETWORK: import.meta.env.VITE_NETWORK,
     VITE_P2PMARKET_ADDRESS: import.meta.env.VITE_P2PMARKET_ADDRESS,
     VITE_ZKPASSPORT_REGISTRY_ADDRESS: import.meta.env
       .VITE_ZKPASSPORT_REGISTRY_ADDRESS,
-    VITE_ASSET_HUB_ENDPOINT: import.meta.env.VITE_ASSET_HUB_ENDPOINT,
-    VITE_BULLETIN_ENDPOINT: import.meta.env.VITE_BULLETIN_ENDPOINT,
-    VITE_PEOPLE_CHAIN_ENDPOINT: import.meta.env.VITE_PEOPLE_CHAIN_ENDPOINT,
     VITE_IPFS_GATEWAY: import.meta.env.VITE_IPFS_GATEWAY,
     VITE_READONLY_ORIGIN:
       import.meta.env.VITE_READONLY_ORIGIN || DEFAULT_READONLY_ORIGIN,

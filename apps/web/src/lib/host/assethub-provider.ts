@@ -1,28 +1,19 @@
 /**
  * Asset Hub Provider
  *
- * PAPI connection to Paseo Asset Hub for contract interactions.
- *
- * Always uses direct WebSocket — even inside Polkadot Desktop.
- *
- * Why not the Host container provider?
- * `@novasamatech/host-api-wrapper`'s `createPapiProvider()` routes via the deprecated
- * `host_jsonrpc_message_*` channel which is *not* wired into Desktop's new
- * `chainConnectionManager`. The first chainHead follow goes through the legacy
- * pipe but later `remote_chain_head_*` RPCs ask the manager for the active
- * follow id and fail with "No active follow for this chain". Direct WebSocket
- * sidesteps this until host-api-wrapper migrates to `remote_chain_*`.
+ * PAPI connection to Paseo Asset Hub for contract interactions, routed entirely
+ * through the Polkadot host's chain-connection manager via `createPapiProvider`
+ * (keyed by genesis hash). The host owns the transport, so the PApp opens no
+ * socket of its own — meaning this only works inside a host environment
+ * (Polkadot Desktop, mobile, dot.li), not a bare browser.
  */
 
+import { createPapiProvider } from "@novasamatech/host-api-wrapper";
 import type { PolkadotClient, TypedApi } from "polkadot-api";
 import { createClient } from "polkadot-api";
-import { getWsProvider } from "polkadot-api/ws";
 
 import { paseohubnext } from "@polkadot-api/descriptors";
-import { env } from "../../env";
-
-const ASSET_HUB_RPC =
-  env.VITE_ASSET_HUB_ENDPOINT || "wss://paseo-asset-hub-next-rpc.polkadot.io";
+import { activeNetwork } from "./networks";
 
 class AssetHubProviderManager {
   private client: PolkadotClient | null = null;
@@ -46,8 +37,8 @@ class AssetHubProviderManager {
     }
 
     this.initPromise = (async () => {
-      const wsProvider = getWsProvider(ASSET_HUB_RPC);
-      this.client = createClient(wsProvider);
+      const provider = createPapiProvider(activeNetwork.assetHubGenesis);
+      this.client = createClient(provider);
       this.api = this.client.getTypedApi(paseohubnext);
 
       // Read NativeToEthRatio from Revive pallet runtime constants.

@@ -49,7 +49,7 @@ contract is registered there too (`sol.p2p_market`).
 `papi` runs as part of the web build (`"build": "papi && tsc && vite build"` in
 [`apps/web/package.json`](../../apps/web/package.json)), so descriptors regenerate on
 every build. This emits the generated `@polkadot-api/descriptors` package under
-`apps/web/.papi/descriptors/dist`, imported as `../../../.papi/descriptors/dist`.
+`apps/web/.papi/descriptors/dist`, imported as `@polkadot-api/descriptors`.
 
 ---
 
@@ -61,18 +61,16 @@ This is the pattern used by
 
 ```typescript
 // apps/web/src/lib/host/assethub-provider.ts (shape)
+import { createPapiProvider } from "@novasamatech/host-api-wrapper";
 import type { PolkadotClient, TypedApi } from "polkadot-api";
 import { createClient } from "polkadot-api";
-import { getWsProvider } from "polkadot-api/ws";
 
-import { paseohubnext } from "../../../.papi/descriptors/dist";
-import { env } from "../../env";
+import { paseohubnext } from "@polkadot-api/descriptors";
+import { activeNetwork } from "./networks";
 
-const ASSET_HUB_RPC =
-  env.VITE_ASSET_HUB_ENDPOINT || "wss://paseo-asset-hub-next-rpc.polkadot.io";
-
-const wsProvider = getWsProvider(ASSET_HUB_RPC);
-const client: PolkadotClient = createClient(wsProvider);
+// Host-routed: the host owns the transport; we just name the chain by genesis.
+const provider = createPapiProvider(activeNetwork.assetHubGenesis);
+const client: PolkadotClient = createClient(provider);
 
 // Typed API — autocomplete for pallets, storage, tx, runtime APIs, constants
 const api: TypedApi<typeof paseohubnext> = client.getTypedApi(paseohubnext);
@@ -84,8 +82,8 @@ const nativeToEthRatio = await api.constants.Revive.NativeToEthRatio();
 The provider is a lazily-initialized singleton (cached client + typed API, HMR-safe).
 People Next is reached separately for the Statement Store — see
 [`apps/web/src/lib/statement-store.ts`](../../apps/web/src/lib/statement-store.ts), which
-subscribes via `@novasamatech/sdk-statement` over People Next JSON-RPC
-(`VITE_PEOPLE_CHAIN_ENDPOINT`).
+subscribes via `@novasamatech/sdk-statement` over a host-routed People Next
+connection (`createPapiProvider(activeNetwork.peopleGenesis)`).
 
 ---
 
@@ -137,45 +135,51 @@ call `Revive.map_account`. Full implementation:
 
 ---
 
-## Step 3: Bulletin Chain Client
+## Step 3: Bulletin Chain (host-routed, no PAPI client)
 
-Bulletin Next is wired today. The Bulletin descriptor is generated against
-`wss://paseo-bulletin-next-rpc.polkadot.io`; the upload/read client lives in the
-[`packages/bulletin`](../../packages/bulletin) package
-([`packages/bulletin/src/bulletin.ts`](../../packages/bulletin/src/bulletin.ts)), and the
-app-side adapter is
-[`apps/web/src/lib/host/storage.ts`](../../apps/web/src/lib/host/storage.ts).
-There is no mock client and no Smoldot fallback — same WSS pattern as Asset Hub:
+Bulletin blobs go through the host's **preimage manager** under the RFC-0010
+`BulletinAllowance` — there is no WSS PAPI client. Logic lives in
+[`apps/web/src/lib/host/storage.ts`](../../apps/web/src/lib/host/storage.ts):
+
+- **Write:** `preimageManager.submit(bytes)` — host-only (throws standalone).
+- **Read:** `preimageManager.lookup(hash, cb)` in-host (the host serves the blob);
+  public IPFS gateways (`VITE_IPFS_GATEWAY` + fallbacks) when standalone.
 
 ```typescript
-// packages/bulletin/src/bulletin.ts (shape)
-import { bulletin } from "@polkadot-api/descriptors";
-import { createClient } from "polkadot-api";
-import { getWsProvider } from "polkadot-api/ws";
+// apps/web/src/lib/host/storage.ts (shape)
+const { preimageManager } = await import("@novasamatech/host-api-wrapper");
 
-const BULLETIN_RPC =
-  options.bulletinEndpoint || "wss://paseo-bulletin-next-rpc.polkadot.io";
+// write — host stores the blob; CID is blake2b-256 + raw codec (0xb220 / 0x55)
+await preimageManager.submit(bytes);
 
-const client = createClient(getWsProvider(BULLETIN_RPC));
-const api = client.getTypedApi(bulletin);
+// read — derive the lookup key (blake2b-256 digest) from the CID, then lookup
+const sub = preimageManager.lookup(cidToPreimageKey(cid), (preimage) => {
+  /* resolves on first hit — see fetchViaPreimage */
+});
 ```
 
-The endpoint env var is **`VITE_BULLETIN_ENDPOINT`** (optional override; defaults to the
-Paseo Bulletin Next WSS). Bulletin uploads are signed with `//Alice` directly — the
-host (dot.li) does not proxy Bulletin Chain, so this client bypasses the Host API.
+The `bulletinnext` descriptor still exists as a codegen target in
+`.papi/polkadot-api.json`, but the app no longer builds a WSS client for Bulletin —
+that was removed when chain connections moved to the host. (The contracts **seed**
+script still reaches Bulletin directly over WSS via `VITE_BULLETIN_ENDPOINT`, since
+it's a Node tool with no host.)
 
 ---
 
 ## Chain Reference
 
-This repo connects to exactly three Paseo Next v2 chains, all by WSS, all via generated
-descriptors (no bundled light-client specs):
+At runtime the app connects to these Paseo Next v2 chains **via the host**
+(`createPapiProvider` keyed by genesis hash — no WSS, no bundled light-client
+specs). The active network is chosen at build time via `VITE_NETWORK`, and the
+genesis hashes live in `src/lib/host/networks.ts`. The WSS endpoints below are
+used **only** by papi codegen (`papi update` fetches metadata from them; they
+live in `.papi/polkadot-api.json`) — there are no runtime endpoint env overrides.
 
-| Descriptor | Chain | WSS endpoint | Env override |
-|------------|-------|--------------|--------------|
-| `paseohubnext` | Asset Hub Next (contracts) | `wss://paseo-asset-hub-next-rpc.polkadot.io` | `VITE_ASSET_HUB_ENDPOINT` |
-| `bulletinnext` | Bulletin Next (storage) | `wss://paseo-bulletin-next-rpc.polkadot.io` | `VITE_BULLETIN_ENDPOINT` |
-| `peoplenext` | People Next System (Statement Store RPC) | `wss://paseo-people-next-system-rpc.polkadot.io` | `VITE_PEOPLE_CHAIN_ENDPOINT` |
+| Descriptor | Chain | Codegen WSS (`papi update`) |
+|------------|-------|------------------------------|
+| `paseohubnext` | Asset Hub Next (contracts) | `wss://paseo-asset-hub-next-rpc.polkadot.io` |
+| `bulletinnext` | Bulletin Next (storage) | `wss://paseo-bulletin-next-rpc.polkadot.io` |
+| `peoplenext` | People Next System (Statement Store) | `wss://paseo-people-next-system-rpc.polkadot.io` |
 
 EVM-side metadata for the same Asset Hub: chainId `420420417`, eth-rpc
 `https://eth-rpc-paseo-next.polkadot.io`, explorer `https://blockscout-paseo-next.polkadot.io`.
@@ -217,7 +221,7 @@ Reference: https://papi.how/getting-started and https://papi.how/codegen/
 
 - [ ] Add the three descriptors by WSS (`papi add ... -w`); confirm they regenerate on build
 - [ ] Wire the Asset Hub WSS provider (`assethub-provider.ts`)
-- [ ] Wire the Bulletin Next WSS client (`packages/bulletin/src/bulletin.ts`) + `apps/web/src/lib/host/storage.ts` adapter
+- [ ] Wire the Bulletin Next WSS provider (`bulletin-provider.ts`) + `packages/bulletin`
 - [ ] Connect Explore offer lists to on-chain data via `ReviveApi.call`
 - [ ] Integrate P2PMarket contract — createOffer, lockTrade, confirm*, refundTrade
 - [ ] Wire trade pages to `Revive.call` writes (host-injected signer)

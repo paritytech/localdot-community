@@ -35,23 +35,21 @@ pnpm run deploy        # interactive: wallet → fund → deploy → build → p
 
 See [docs/GUIDE.md](docs/GUIDE.md#deploying) for the full walkthrough (funding, custom domain, lower-level steps).
 
-### Run locally against the existing deployment (quick look)
-
-To browse or develop without deploying your own, start the dev server and point it at the deployed contracts above:
+### Run locally (quick look)
 
 ```bash
 pnpm install
-pnpm dev               # web app on http://localhost:5173
+pnpm dev               # dev server on http://localhost:5173
 ```
 
-Create `apps/web/.env.local` with the deployed addresses — otherwise the app starts but shows **"contract not deployed"**:
+Set the contract addresses in `apps/web/.env.local` — otherwise the app shows **"contract not deployed"**:
 
 ```bash
 VITE_P2PMARKET_ADDRESS=0x86a9F3fe05CA4Bba050CF271Ac64fDF0D893F09E
 VITE_ZKPASSPORT_REGISTRY_ADDRESS=0xAA7C4b07c7040D31e40ad60E9e35257E376BD717
 ```
 
-Network endpoints default to Paseo Next v2, so nothing else is needed. You can **browse** offers and agents read-only without a wallet; **signing** (creating an offer, locking funds, confirming a trade) only works inside a Polkadot Host.
+Chain access is **host-routed**: the app reads Asset Hub / People / Bulletin *through* the Polkadot Host (`VITE_NETWORK` selects the chain set — see `apps/web/src/lib/host/networks.ts`), not a direct WSS. So open the dev URL **inside a Polkadot Host** (the desktop app or [dot.li](https://dot.li)) — that's where both the chain connections and the signer come from. A bare browser tab loads the UI but can't reach the chains.
 
 ## Environment Variables
 
@@ -62,7 +60,7 @@ Network endpoints default to Paseo Next v2, so nothing else is needed. You can *
 | `VITE_P2PMARKET_ADDRESS` | P2PMarket contract address (required to load data) |
 | `VITE_ZKPASSPORT_REGISTRY_ADDRESS` | ZKPassportRegistry address (optional — identity verification) |
 | `VITE_CHAIN_ID` | EVM chain id (default `420420417`) |
-| `VITE_ASSET_HUB_ENDPOINT` · `VITE_BULLETIN_ENDPOINT` · `VITE_PEOPLE_CHAIN_ENDPOINT` | WSS endpoints (default Paseo Next v2) |
+| `VITE_NETWORK` | Host-routed chain set — Asset Hub / People / Bulletin (default `paseo-next-v2`) |
 | `VITE_IPFS_GATEWAY` | Bulletin IPFS gateway |
 
 `pnpm run deploy` fills in the contract address automatically; CI builds load these from [.github/env](.github/env). Full list with validation lives in [apps/web/src/env.ts](apps/web/src/env.ts).

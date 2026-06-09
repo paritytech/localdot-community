@@ -41,7 +41,10 @@
  * come from different signers (buyer vs provider).
  */
 
-import { createStatementStore } from "@novasamatech/host-api-wrapper";
+import {
+  createPapiProvider,
+  createStatementStore,
+} from "@novasamatech/host-api-wrapper";
 import {
   createExpiryFromDuration,
   createStatementSdk,
@@ -51,13 +54,9 @@ import {
   createClient,
   type SubstrateClient,
 } from "@polkadot-api/substrate-client";
-import { getWsProvider } from "polkadot-api/ws";
 
 import { type BootstrapStep, ensureBootstrap } from "./host/allowances";
-
-const PEOPLE_CHAIN_ENDPOINT =
-  (import.meta.env.VITE_PEOPLE_CHAIN_ENDPOINT as string) ||
-  "wss://paseo-people-next-system-rpc.polkadot.io";
+import { activeNetwork } from "./host/networks";
 
 type Topic = ReturnType<typeof stringToTopic>;
 
@@ -333,7 +332,7 @@ let _client: SubstrateClient | null = null;
 let _sdk: Sdk | null = null;
 
 /**
- * Returns the SDK singleton, opening a WebSocket on first call.
+ * Returns the SDK singleton, opening a host-routed connection on first call.
  *
  * createStatementSdk expects two adapters:
  *   requestFn  — Promise-based, for statement_submit
@@ -346,7 +345,7 @@ let _sdk: Sdk | null = null;
 export function getSdk(): Sdk {
   if (_sdk) return _sdk;
 
-  const provider = getWsProvider(PEOPLE_CHAIN_ENDPOINT);
+  const provider = createPapiProvider(activeNetwork.peopleGenesis);
   _client = createClient(provider);
   const c = _client;
 

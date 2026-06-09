@@ -12,11 +12,9 @@ interface ImportMetaEnv {
   readonly MODE: string;
   readonly VITE_RPC_URL?: string;
   readonly VITE_CHAIN_ID?: string;
+  readonly VITE_NETWORK?: string;
   readonly VITE_P2PMARKET_ADDRESS?: string;
   readonly VITE_ZKPASSPORT_REGISTRY_ADDRESS?: string;
-  readonly VITE_ASSET_HUB_ENDPOINT?: string;
-  readonly VITE_BULLETIN_ENDPOINT?: string;
-  readonly VITE_PEOPLE_CHAIN_ENDPOINT?: string;
   readonly VITE_IPFS_GATEWAY?: string;
   readonly VITE_READONLY_ORIGIN?: string;
   readonly VITE_USE_HOST_API?: string;

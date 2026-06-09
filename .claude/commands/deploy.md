@@ -103,9 +103,8 @@ VITE_RPC_URL=https://eth-rpc-paseo-next.polkadot.io   # EVM JSON-RPC (ABI callda
 VITE_CHAIN_ID=420420417
 VITE_P2PMARKET_ADDRESS=                                # Deployed P2PMarket contract
 VITE_ZKPASSPORT_REGISTRY_ADDRESS=                      # Deployed ZKPassportRegistry contract
-VITE_ASSET_HUB_ENDPOINT=wss://paseo-asset-hub-next-rpc.polkadot.io
-VITE_BULLETIN_ENDPOINT=wss://paseo-bulletin-next-rpc.polkadot.io
-VITE_PEOPLE_CHAIN_ENDPOINT=wss://paseo-people-next-system-rpc.polkadot.io
+VITE_NETWORK=paseo-next-v2                             # host-routed chain set: Asset Hub / People / Bulletin (see lib/host/networks.ts)
+VITE_BULLETIN_ENDPOINT=wss://paseo-bulletin-next-rpc.polkadot.io   # contracts seed script only (Node); the web app reads Bulletin via the host
 VITE_IPFS_GATEWAY=https://paseo-bulletin-next-ipfs.polkadot.io/ipfs/
 VITE_READONLY_ORIGIN=                                  # SS58 used as ReviveApi.call origin (defaults to Alice)
 
