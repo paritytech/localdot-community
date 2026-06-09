@@ -25,7 +25,7 @@ quality gates, see [CLAUDE.md](../CLAUDE.md).
 
 ## Configuration
 
-The network endpoints default to the **Paseo Next v2** test network, but the app needs a **deployed contract address** to load any data (without it you'll see "contract not deployed"). Create `apps/web/.env.local`. To browse the existing reference deployment, copy the `VITE_P2PMARKET_ADDRESS` / `VITE_ZKPASSPORT_REGISTRY_ADDRESS` from [.github/env](../.github/env); or deploy your own (see [Deploying](#deploying)) and the script fills them in:
+The network endpoints default to the **Paseo Next v2** test network, but the app needs a **deployed contract address** to load any data (without it you'll see "contract not deployed"). Create `apps/web/.env.local` with your `VITE_P2PMARKET_ADDRESS` / `VITE_ZKPASSPORT_REGISTRY_ADDRESS`, or deploy your own (see [Deploying](#deploying)) and the script fills them in:
 
 ```bash
 # The two smart contracts (filled in automatically by the deploy script).
@@ -89,20 +89,19 @@ It walks you through:
 4. **Build** — builds the web app with Vite to `apps/web/dist`.
 5. **Publish** — publishes the build to a `.dot` domain via `bulletin-deploy`, so it's served decentrally from the Bulletin Chain with no web host.
 
-The same mnemonic signs the contract instantiate **and** is handed to `bulletin-deploy` (via the `MNEMONIC` env var) for the publish. It only ever lives in memory — **never written to disk**. The deployed contract address + chain are written to `apps/web/.env.local` (gitignored, so the static build inlines them) and to `.github/env` when present.
+The same mnemonic signs the contract instantiate **and** is handed to `bulletin-deploy` (via the `MNEMONIC` env var) for the publish. It only ever lives in memory — **never written to disk**. The deployed contract address + chain are written to `apps/web/.env.local` (gitignored, so the static build inlines them).
 
 ### Prerequisites
 
 - **Node 22+ and pnpm** (already required for the repo).
 - **IPFS (kubo)** is optional — if it isn't on your `PATH`, the deploy falls back to bulletin-deploy's pure-JS merkleizer (`--js-merkle`). Installing kubo just speeds up large publishes.
-- Everything else is automatic: a recent `bulletin-deploy` is fetched via `npx` if a new-enough one isn't installed, and the `resolc` contract compiler (~170 MB) is downloaded on first run.
+- Everything else is automatic: if a recent `bulletin-deploy` isn't already on your machine, the deploy installs the latest globally (`npm i -g bulletin-deploy@latest`), falling back to a throwaway `npx` fetch only if the global install isn't possible. The `resolc` contract compiler (~170 MB) is downloaded on first run.
 
 ### What it writes
 
 | File | Keys |
 |------|------|
 | `apps/web/.env.local` | `VITE_P2PMARKET_ADDRESS`, `VITE_CHAIN_ID`, `VITE_RPC_URL` |
-| `.github/env` (if present) | `VITE_P2PMARKET_ADDRESS` |
 
 ### Notes
 

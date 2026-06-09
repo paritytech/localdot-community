@@ -44,11 +44,10 @@ const ARTIFACT = resolve(
 
 // bulletin-deploy --env id for the Paseo Next v2 Bulletin chain.
 const BULLETIN_ENV = "paseo-next-v2";
-// The deploy signer has PoP (personhood) set, so DotNS accepts clean,
-// human-readable labels (no ≥9-alphanumeric + 2-trailing-digits workaround).
-// The production domain is the stable default. Change it at the
-// prompt to publish your own instance.
-const DEFAULT_DOMAIN = "localdot.dot";
+// There is no default domain — the operator must choose a label at the prompt.
+// The DotNS naming policy that governs which labels are registrable is documented
+// (and surfaced to the operator) at the Domain prompt below; it assumes a NoStatus
+// signer (no personhood), the common case — only such names are open to any caller.
 const GATEWAY_BASE = process.env.DOTNS_GATEWAY_BASE ?? "dot.li";
 // Funding floor checked before spending. The deploy pays the contract's code +
 // storage deposit and the .dot registration; the dry-run computes the exact
@@ -86,26 +85,49 @@ function versionGte(current: string, minimum: string): boolean {
   return true;
 }
 
+/** Probe the installed bulletin-deploy. Returns its version string, or null if it isn't on PATH. */
+function probeBulletinDeployVersion(): string | null {
+  const probe = spawnSync("bulletin-deploy", ["--version"], { encoding: "utf8" });
+  if (probe.error || probe.status !== 0) return null;
+  return `${probe.stdout ?? ""}${probe.stderr ?? ""}`.trim();
+}
+
+function isUsableVersion(version: string | null): version is string {
+  return !!version && !!parseSemver(version) && versionGte(version, MIN_BULLETIN_DEPLOY_VERSION);
+}
+
 /**
- * Use an installed bulletin-deploy only if it's recent enough; otherwise fetch a
- * known-good build via `npx -y bulletin-deploy@latest` (no global install). The
+ * Ensure a recent bulletin-deploy is available. If a good one is already on the
+ * machine, use it. If it's missing or too old, install the latest globally
+ * (`npm i -g bulletin-deploy@latest`) so this and future deploys reuse it. The
  * floor avoids older builds that fail preflight and prompt for a mid-deploy
- * self-upgrade. Returns the argv prefix to spawn.
+ * self-upgrade. Only if a global install isn't possible (e.g. no write access to
+ * the global prefix) do we fall back to a throwaway `npx` fetch. Returns the
+ * argv prefix to spawn.
  */
 function resolveBulletinDeployCommand(): string[] {
-  const probe = spawnSync("bulletin-deploy", ["--version"], { encoding: "utf8" });
-  if (!probe.error && probe.status === 0) {
-    const version = `${probe.stdout ?? ""}${probe.stderr ?? ""}`.trim();
-    if (parseSemver(version) && versionGte(version, MIN_BULLETIN_DEPLOY_VERSION)) {
-      ui.success(`${version} (installed)`);
+  const installed = probeBulletinDeployVersion();
+  if (isUsableVersion(installed)) {
+    ui.success(`${installed} (installed)`);
+    return ["bulletin-deploy"];
+  }
+
+  if (installed) {
+    ui.warn(`${installed} is older than ${MIN_BULLETIN_DEPLOY_VERSION} — installing latest globally…`);
+  } else {
+    ui.info("bulletin-deploy not found — installing latest globally (npm i -g)…");
+  }
+
+  const install = spawnSync("npm", ["install", "-g", "bulletin-deploy@latest"], { stdio: "inherit" });
+  if (install.status === 0) {
+    const after = probeBulletinDeployVersion();
+    if (isUsableVersion(after)) {
+      ui.success(`${after} (installed)`);
       return ["bulletin-deploy"];
     }
-    ui.warn(
-      `${version || "bulletin-deploy"} is older than ${MIN_BULLETIN_DEPLOY_VERSION} — ` +
-        "using npx latest instead.",
-    );
+    ui.warn("Global install completed but bulletin-deploy still isn't usable — falling back to npx.");
   } else {
-    ui.info("bulletin-deploy not found — fetching latest via npx (no global install).");
+    ui.warn("Global install failed (npm i -g) — falling back to npx latest for this run.");
   }
   return ["npx", "-y", "bulletin-deploy@latest"];
 }
@@ -147,7 +169,8 @@ function formatPas(planck: bigint, decimals: number): string {
 }
 
 function normalizeDomain(raw: string): string {
-  let domain = raw.trim().toLowerCase() || DEFAULT_DOMAIN;
+  let domain = raw.trim().toLowerCase();
+  if (!domain) throw new Error("A domain is required.");
   if (!domain.endsWith(".dot")) domain += ".dot";
   return domain;
 }
@@ -203,8 +226,15 @@ function publishDapp(command: string[], domain: string, seed: string): void {
     cwd: REPO_ROOT,
     stdio: "inherit",
     // MNEMONIC stays in-memory only — never written to disk. NODE_OPTIONS mirrors
-    // CI so the publish doesn't OOM on the bundle.
-    env: { ...process.env, MNEMONIC: seed, NODE_OPTIONS: "--max-old-space-size=8192" },
+    // CI so the publish doesn't OOM on the bundle. BULLETIN_DEPLOY_DOMAIN is read
+    // by apps/web/bulletin-deploy.config.ts so the published manifest's `domain`
+    // matches the label we're deploying to (publishManifest aborts otherwise).
+    env: {
+      ...process.env,
+      MNEMONIC: seed,
+      BULLETIN_DEPLOY_DOMAIN: domain,
+      NODE_OPTIONS: "--max-old-space-size=8192",
+    },
   });
   if (result.status !== 0) throw new Error("bulletin-deploy failed.");
 }
@@ -283,9 +313,25 @@ async function main(): Promise<void> {
     const { contractAddress } = await deployP2PMarket(deployerFromSeed(seed));
 
     ui.section("Domain");
-    const domain = normalizeDomain(
-      await rl.question(ui.ask(`Domain to publish to [${DEFAULT_DOMAIN}]: `)),
-    );
+    // DotNS naming policy, framed for a NoStatus signer (no personhood — the
+    // common case). "base" is the label with any trailing digits stripped:
+    //   • base length ≥ 9   → open to any caller (NoStatus) when carrying zero or
+    //     exactly two trailing digits. This is all a NoStatus wallet can register.
+    //   • base length 6–8  → requires personhood: PopFull, or PopLite carrying
+    //     exactly two trailing digits (gateway-issued lite names). Not available here.
+    //   • a one-digit suffix, or more than two trailing digits, is invalid.
+    ui.info("Naming rules:");
+    ui.info("• 9+ characters");
+    ui.info("• end with zero or exactly two digits (e.g. mydappname or mydappname42)");
+    let domain = "";
+    while (!domain) {
+      const answer = (await rl.question(ui.ask("Domain to publish to (.dot): "))).trim();
+      if (!answer) {
+        ui.warn("A domain is required — enter a .dot name to publish to.");
+        continue;
+      }
+      domain = normalizeDomain(answer);
+    }
 
     runBuild();
     await ensureMnemonicSigner(rl, bulletinDeploy);

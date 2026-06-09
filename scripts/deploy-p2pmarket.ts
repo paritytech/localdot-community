@@ -14,8 +14,8 @@
  * itself). The deployer's H160 is keccak256(pubkey)[12:32] — pallet-revive's
  * `to_address` for a plain AccountId32 — which is the address AutoMapper assigns.
  *
- * On success it writes the deployed P2PMarket H160 into apps/web/.env.local (so
- * the next `vite build` inlines it) and, when present, .github/env (CI).
+ * On success it writes the deployed P2PMarket H160 into apps/web/.env.local so
+ * the next `vite build` inlines it.
  *
  * Usage (standalone):
  *   DEPLOYER_SEED="twelve or twenty-four words ..." pnpm tsx scripts/deploy-p2pmarket.ts
@@ -44,7 +44,6 @@ const ARTIFACT_PATH = resolve(
   "packages/contracts/artifacts/contracts/P2PMarket.sol/P2PMarket.json",
 );
 const WEB_ENV_PATH = resolve(REPO_ROOT, "apps/web/.env.local");
-const GITHUB_ENV_PATH = resolve(REPO_ROOT, ".github/env");
 
 const GAS_MULTIPLIER = 4n;
 const CONTRACT_LABEL = "P2PMarket";
@@ -255,13 +254,9 @@ async function deployContract(
 
 /**
  * Idempotently merge `values` into the dotenv file at `path`, preserving
- * comments, blanks, and unrelated keys. Creates the file when `create` is set.
+ * comments, blanks, and unrelated keys. Creates the file if it doesn't exist.
  */
-function upsertEnvFile(path: string, values: Record<string, string>, create: boolean): void {
-  if (!existsSync(path) && !create) {
-    ui.info(`${path} not found — skipping.`);
-    return;
-  }
+function upsertEnvFile(path: string, values: Record<string, string>): void {
   let content = existsSync(path) ? readFileSync(path, "utf8") : "";
   for (const [key, value] of Object.entries(values)) {
     const line = `${key}=${value}`;
@@ -277,8 +272,8 @@ function upsertEnvFile(path: string, values: Record<string, string>, create: boo
 
 /**
  * Deploy a fresh P2PMarket to Asset Hub Next and persist the resulting H160
- * into apps/web/.env.local (+ .github/env when present). Exported so the
- * interactive orchestrator (scripts/deploy.ts) can drive it in-process.
+ * into apps/web/.env.local. Exported so the interactive orchestrator
+ * (scripts/deploy.ts) can drive it in-process.
  */
 export async function deployP2PMarket(deployer: Deployer): Promise<DeployResult> {
   const { signer, ss58, h160 } = deployer;
@@ -299,17 +294,11 @@ export async function deployP2PMarket(deployer: Deployer): Promise<DeployResult>
     // mapping on first use (this instantiate).
     const { contractAddress, txHash } = await deployContract(api, signer, ss58, dryRunDeposit);
 
-    upsertEnvFile(
-      WEB_ENV_PATH,
-      {
-        VITE_P2PMARKET_ADDRESS: contractAddress,
-        VITE_CHAIN_ID: String(NETWORK.chainId),
-        VITE_RPC_URL: NETWORK.rpcUrl,
-      },
-      true,
-    );
-    upsertEnvFile(GITHUB_ENV_PATH, { VITE_P2PMARKET_ADDRESS: contractAddress }, false);
-
+    upsertEnvFile(WEB_ENV_PATH, {
+      VITE_P2PMARKET_ADDRESS: contractAddress,
+      VITE_CHAIN_ID: String(NETWORK.chainId),
+      VITE_RPC_URL: NETWORK.rpcUrl,
+    });
     ui.success(`Contract deployed — ${contractAddress}`);
     ui.info(`tx ${txHash}`);
     ui.info("updated apps/web/.env.local");
