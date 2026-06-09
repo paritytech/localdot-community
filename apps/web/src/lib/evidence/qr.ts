@@ -574,7 +574,7 @@ export function createMockQRPayload(
       buyer: overrides?.buyer ?? randomBytes(32),
     },
     terms: {
-      tokenType: 1, // HOLLAR
+      tokenType: 1, // token type
       tokenAmount: overrides?.tokenAmount ?? BigInt("100000000000000000000"), // 100 tokens
       fiatCurrency: "USD",
       fiatAmount: overrides?.fiatAmount ?? BigInt(10000), // $100.00

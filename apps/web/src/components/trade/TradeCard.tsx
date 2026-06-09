@@ -53,7 +53,7 @@ export function TradeCard({
         </div>
         <div className="text-right">
           <p className="mono text-xl text-stone-50">{amount}</p>
-          <p className="text-[11px] text-stone-500">HOLLAR</p>
+          <p className="text-[11px] text-stone-500">TOKEN</p>
         </div>
       </div>
       <EscrowStampBar state={state} compact />

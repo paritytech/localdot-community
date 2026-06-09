@@ -8,7 +8,7 @@ Implement and maintain the LocalDOT smart contracts.
 > and [`ZKPassportRegistry.sol`](../../packages/contracts/contracts/ZKPassportRegistry.sol) (`1.0.0`).
 > There is **no** `LocalDOTEscrow.sol` and **no** `MockERC20.sol`. Escrow holds the
 > **chain-native token** (PAS on testnet) via `msg.value` / `.call{value:}` — *not* an
-> ERC-20. "Hollar" is conceptual only (priced at USD 1.00 on-chain); there is no
+> ERC-20. A distinct traded token is conceptual only (priced at USD 1.00 on-chain); there is no
 > `IERC20` / `transferFrom` / `approve` anywhere. OpenZeppelin is a devDependency but
 > **unused** in source.
 
@@ -320,7 +320,7 @@ and are out of scope for V1 (see the project README/CLAUDE.md roadmap):
 - **On-chain disputes** — resolution is escrow + 24h timeout only.
 - **Reputation** — no on-chain scoring.
 - **Multi-asset / multi-currency** — native token only, USD priced 1.00.
-- **A real Hollar ERC-20 stablecoin** — today the escrow holds native PAS; "Hollar" is
-  conceptual.
+- **A real ERC-20 stablecoin** — today the escrow holds native PAS; a distinct traded
+  token is conceptual.
 - **Full PGAS gas sponsorship** — contract writes still require a funded account; the
   product account must hold native balance (faucet on testnet).

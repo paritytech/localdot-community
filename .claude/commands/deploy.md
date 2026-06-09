@@ -95,7 +95,7 @@ Before deploying to production:
 
 ## Environment Variables
 
-Wallet/signing is **Host-injected only** (Polkadot Triangle) — there is no WalletConnect or standalone browser wallet, so no `VITE_WC_PROJECT_ID`. There is no `VITE_ESCROW_ADDRESS` / `VITE_HOLLAR_ADDRESS` (one contract, `P2PMarket`; escrow uses the native token, not an ERC-20).
+Wallet/signing is **Host-injected only** (Polkadot Triangle) — there is no WalletConnect or standalone browser wallet, so no `VITE_WC_PROJECT_ID`. There is no `VITE_ESCROW_ADDRESS` / `VITE_TOKEN_ADDRESS` (one contract, `P2PMarket`; escrow uses the native token, not an ERC-20).
 
 ```bash
 # apps/web/.env  (deploy build reads these from .github/env)

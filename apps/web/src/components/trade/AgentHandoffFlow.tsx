@@ -422,7 +422,7 @@ function BuyerCashCard({
   currencySym: string;
   fees: FeeInfo | null;
 }): JSX.Element {
-  // Pegged-stablecoin assumption (Hollar V1 scope): 1 token ≈ 1 unit fiat
+  // Pegged-stablecoin assumption (V1 scope): 1 token ≈ 1 unit fiat
   // so a single $-total reads cleanly. Direction matters here: in a SELL
   // trade the buyer brings cash and provider fee adds to the total; in a
   // BUY trade the provider brings cash and provider fee is deducted from it.

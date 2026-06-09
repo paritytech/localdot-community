@@ -45,7 +45,7 @@ Set up the LocalDOT monorepo from scratch.
   "name": "localdot",
   "version": "1.0.0",
   "private": true,
-  "description": "Peer-to-peer cash-to-Hollar exchange on Polkadot",
+  "description": "Peer-to-peer cash-to-token exchange on Polkadot",
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",

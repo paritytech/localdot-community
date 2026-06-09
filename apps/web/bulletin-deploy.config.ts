@@ -30,7 +30,7 @@ export default defineConfig({
   domain: process.env.BULLETIN_DEPLOY_DOMAIN ?? "localdotapp.dot",
   displayName: "LocalDOT",
   description:
-    "Peer-to-peer cash-to-Hollar exchange on Polkadot — find nearby providers and settle trades on-chain.",
+    "Peer-to-peer cash-to-token exchange on Polkadot — find nearby providers and settle trades on-chain.",
   icon: { path: "./icon.png", format: "png" },
   executables: [
     {
