@@ -6,6 +6,8 @@ import iconRetina from "leaflet/dist/images/marker-icon-2x.png";
 import iconShadow from "leaflet/dist/images/marker-shadow.png";
 import { Star } from "lucide-react";
 import { Fragment, useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+
 import {
   Circle,
   MapContainer,
@@ -13,8 +15,7 @@ import {
   Popup,
   TileLayer,
   useMap,
-} from "react-leaflet";
-import { Link } from "react-router-dom";
+} from "../location/leaflet-lite";
 
 const DefaultIcon = L.icon({
   iconRetinaUrl: iconRetina,

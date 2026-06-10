@@ -1,6 +1,7 @@
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import { useEffect } from "react";
+
 import {
   Circle,
   MapContainer,
@@ -8,7 +9,7 @@ import {
   TileLayer,
   useMap,
   useMapEvents,
-} from "react-leaflet";
+} from "./leaflet-lite";
 
 // ICONS
 

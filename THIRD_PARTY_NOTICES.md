@@ -2,7 +2,7 @@
 
 LocalDOT is licensed under **GPL-3.0-only** (see [LICENSE](LICENSE)).
 It depends on, and its production build bundles, the third-party packages
-listed below (1026 in total), grouped by their declared SPDX license. This file
+listed below (1024 in total), grouped by their declared SPDX license. This file
 is auto-generated from the resolved dependency tree via `pnpm licenses list --json`
 and is provided for attribution.
 
@@ -210,11 +210,6 @@ and is provided for attribution.
 ## GPL-3.0-or-later WITH Classpath-exception-2.0
 
 - `smoldot` (2.0.26, 2.0.36, 3.1.4)
-
-## Hippocratic-2.1
-
-- `@react-leaflet/core` (2.1.0)
-- `react-leaflet` (4.2.1)
 
 ## ISC
 
