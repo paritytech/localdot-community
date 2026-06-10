@@ -1,0 +1,58 @@
+{
+  "name": "@localdot/contracts",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Smart contracts for LocalDOT P2P exchange",
+  "license": "GPL-3.0-only",
+  "exports": {
+    "./artifacts/P2PMarket.json": "./artifacts/contracts/P2PMarket.sol/P2PMarket.json",
+    "./typechain-types": "./typechain-types/index.ts",
+    "./typechain-types/*": "./typechain-types/*.ts"
+  },
+  "dependencies": {
+    "@localdot/bulletin": "workspace:*",
+    "@localdot/types": "workspace:*"
+  },
+  "scripts": {
+    "download:binaries": "bash scripts/download-binaries.sh",
+    "build": "hardhat compile && tsc --build",
+    "compile": "hardhat compile",
+    "test": "hardhat test",
+    "coverage": "hardhat coverage",
+    "deploy": "hardhat run scripts/deploy.ts --network paseo",
+    "fund-seed": "hardhat run scripts/fund-seed.ts --network paseo",
+    "seed": "hardhat run scripts/seed.ts --network paseo",
+    "check-size": "hardhat size-contracts",
+    "verify": "hardhat verify",
+    "clean": "hardhat clean && rm -rf typechain-types dist",
+    "lint": "solhint 'contracts/**/*.sol'",
+    "lint:fix": "solhint 'contracts/**/*.sol' --fix --noPrompt",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@localdot/config": "workspace:*",
+    "@nomicfoundation/hardhat-chai-matchers": "^2.0.0",
+    "@nomicfoundation/hardhat-ethers": "^3.0.0",
+    "@nomicfoundation/hardhat-network-helpers": "^1.0.0",
+    "@nomicfoundation/hardhat-toolbox": "^4.0.0",
+    "@nomicfoundation/hardhat-verify": "^2.0.0",
+    "@openzeppelin/contracts": "^5.0.1",
+    "@parity/hardhat-polkadot": "0.2.7",
+    "@typechain/ethers-v6": "^0.5.0",
+    "@typechain/hardhat": "^9.0.0",
+    "@types/chai": "^4.3.11",
+    "@types/mocha": "^10.0.6",
+    "@types/node": "^20.10.0",
+    "chai": "^4.3.10",
+    "dotenv": "^16.4.5",
+    "ethers": "^6.10.0",
+    "hardhat": "^2.28.2",
+    "hardhat-contract-sizer": "^2.10.0",
+    "hardhat-gas-reporter": "^1.0.9",
+    "solhint": "^4.1.1",
+    "solidity-coverage": "^0.8.5",
+    "ts-node": "^10.9.2",
+    "typechain": "^8.3.2",
+    "typescript": "^5.9.3"
+  }
+}

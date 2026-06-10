@@ -1,0 +1,49 @@
+{
+  "name": "LocalDOT",
+  "version": "1.0.0",
+  "description": "Peer-to-peer cash-to-token exchange on Polkadot",
+  "author": "LocalDOT Team",
+  "homepage": "https://localdot.io",
+  "permissions": {
+    "accounts": {
+      "required": true,
+      "description": "Access to wallet accounts for creating offers and signing transactions"
+    },
+    "storage": {
+      "required": true,
+      "type": ["bulletin"],
+      "description": "Storage access for offer metadata and listing data"
+    },
+    "evm": {
+      "required": true,
+      "chains": ["asset-hub"],
+      "description": "EVM access for P2PMarket smart contract interactions"
+    },
+    "geolocation": {
+      "required": false,
+      "description": "Optional location access for finding nearby providers"
+    },
+    "remotePermissions": [
+      {
+        "type": "ExternalRequest",
+        "pattern": "https://basemaps.cartocdn.com",
+        "description": "CARTO Voyager map tiles for provider location display"
+      },
+      {
+        "type": "ExternalRequest",
+        "pattern": "https://nominatim.openstreetmap.org",
+        "description": "Reverse geocoding for city/country labels"
+      }
+    ]
+  },
+  "entrypoint": "index.html",
+  "display": {
+    "mode": "spa",
+    "theme": "dark",
+    "orientation": "any"
+  },
+  "triangle": {
+    "modes": ["spa", "widget"],
+    "defaultMode": "spa"
+  }
+}

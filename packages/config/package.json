@@ -1,0 +1,31 @@
+{
+  "name": "@localdot/config",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Shared configuration for localdot monorepo",
+  "license": "GPL-3.0-only",
+  "exports": {
+    "./eslint": "./eslint.mjs",
+    "./prettier": "./prettier.mjs",
+    "./typescript": "./tsconfig.base.json"
+  },
+  "files": [
+    "eslint.mjs",
+    "prettier.mjs",
+    "tsconfig.base.json"
+  ],
+  "dependencies": {
+    "@eslint/js": "^9.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
+    "eslint-plugin-import": "^2.29.1",
+    "eslint-plugin-prettier": "^5.1.3",
+    "eslint-plugin-simple-import-sort": "^10.0.0",
+    "eslint-plugin-sonarjs": "^1.0.0",
+    "eslint-plugin-unused-imports": "^4.0.0",
+    "prettier": "^3.1.0",
+    "prettier-plugin-solidity": "^1.4.1",
+    "typescript": "^5.9.3"
+  }
+}

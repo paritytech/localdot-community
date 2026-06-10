@@ -1,0 +1,25 @@
+{
+  "name": "@localdot/types",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Shared TypeScript types for localdot",
+  "license": "GPL-3.0-only",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "build": "tsc",
+    "lint": "eslint src",
+    "lint:fix": "eslint src --fix",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist"
+  },
+  "devDependencies": {
+    "@localdot/config": "workspace:*",
+    "ethers": "^6.10.0",
+    "typescript": "^5.9.3"
+  }
+}

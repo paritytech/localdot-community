@@ -1,0 +1,9 @@
+{
+  "extends": "@localdot/config/typescript",
+  "compilerOptions": {
+    "rootDir": "./src",
+    "outDir": "./dist",
+    "composite": true
+  },
+  "include": ["src/**/*"]
+}

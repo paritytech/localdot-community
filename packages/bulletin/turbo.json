@@ -1,0 +1,15 @@
+{
+  "extends": ["//"],
+  "tasks": {
+    "build": {
+      "inputs": ["src/**", "tsconfig.json", ".papi/polkadot-api.json", ".papi/metadata/**"],
+      "outputs": ["dist/**", ".papi/descriptors/**"]
+    },
+    "lint": {
+      "dependsOn": ["build"]
+    },
+    "typecheck": {
+      "dependsOn": ["build"]
+    }
+  }
+}
