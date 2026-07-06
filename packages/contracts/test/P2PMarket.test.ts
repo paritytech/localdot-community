@@ -1874,4 +1874,77 @@ describe('P2PMarket', function () {
       expect(trade.state).to.equal(2); // COMPLETED
     });
   });
+
+  describe('lockTrade offer-owner authorization', function () {
+    let victim: Awaited<ReturnType<typeof ethers.getSigners>>[0];
+    let attackerLocker: Awaited<ReturnType<typeof ethers.getSigners>>[0];
+    let attackerCp: Awaited<ReturnType<typeof ethers.getSigners>>[0];
+    let buyerOwner: Awaited<ReturnType<typeof ethers.getSigners>>[0];
+    let tokenHolder: Awaited<ReturnType<typeof ethers.getSigners>>[0];
+
+    const SELL = 0;
+    const BUY = 1;
+    const AVAILABLE = ethers.parseEther('100');
+    const MIN = ethers.parseEther('10');
+    const LOCK = ethers.parseEther('50');
+    const ZERO = ethers.ZeroAddress;
+
+    beforeEach(async function () {
+      const signers = await ethers.getSigners();
+      [victim, attackerLocker, attackerCp, buyerOwner, tokenHolder] = signers.slice(5, 10);
+    });
+
+    async function createSellOffer(offerOwner = victim): Promise<bigint> {
+      await (await market.connect(offerOwner).createOffer(SELL, AVAILABLE, MIN, 0n, 'USD', 'QmSell', [])).wait();
+      return market.offerCounter();
+    }
+
+    async function createBuyOffer(offerOwner = buyerOwner): Promise<bigint> {
+      await (await market.connect(offerOwner).createOffer(BUY, AVAILABLE, MIN, 0n, 'USD', 'QmBuy', [])).wait();
+      return market.offerCounter();
+    }
+
+    it('EXPLOIT: rejects a non-owner locking against the victim’s SELL offer', async function () {
+      const offerId = await createSellOffer();
+      await expect(
+        market.connect(attackerLocker).lockTrade(attackerCp.address, offerId, ZERO, { value: LOCK }),
+      ).to.be.revertedWithCustomError(market, 'NotOfferParticipant');
+    });
+
+    it('IMPACT: the victim’s SELL offer amountAvailable is untouched after the attempt', async function () {
+      const offerId = await createSellOffer();
+      await expect(
+        market.connect(attackerLocker).lockTrade(attackerCp.address, offerId, ZERO, { value: LOCK }),
+      ).to.be.reverted;
+      expect((await market.getOffer(offerId)).amountAvailable).to.equal(AVAILABLE);
+      expect(await market.tradeCounter()).to.equal(0n);
+    });
+
+    it('LEGIT: the SELL offer owner can lock their own offer', async function () {
+      const offerId = await createSellOffer();
+      await expect(
+        market.connect(victim).lockTrade(attackerCp.address, offerId, ZERO, { value: LOCK }),
+      ).to.emit(market, 'TradeLocked');
+    });
+
+    it('EXPLOIT: rejects a lock whose counterparty is not the BUY offer owner', async function () {
+      const offerId = await createBuyOffer();
+      await expect(
+        market.connect(tokenHolder).lockTrade(attackerCp.address, offerId, ZERO, { value: LOCK }),
+      ).to.be.revertedWithCustomError(market, 'NotOfferParticipant');
+    });
+
+    it('LEGIT: a token-holder can lock a BUY offer when the counterparty is the owner', async function () {
+      const offerId = await createBuyOffer();
+      await expect(
+        market.connect(tokenHolder).lockTrade(buyerOwner.address, offerId, ZERO, { value: LOCK }),
+      ).to.emit(market, 'TradeLocked');
+    });
+
+    it('ad-hoc trade (offerId == 0) remains permissionless for any two parties', async function () {
+      await expect(
+        market.connect(attackerLocker).lockTrade(attackerCp.address, 0n, ZERO, { value: LOCK }),
+      ).to.emit(market, 'TradeLocked');
+    });
+  });
 });

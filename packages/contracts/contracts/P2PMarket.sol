@@ -70,6 +70,7 @@ contract P2PMarket {
     error TradeNotLocked();
     error TradeNotReleased();
     error NotTradeParticipant();
+    error NotOfferParticipant();
     error NotLocker();
     error NotAgent();
     error AlreadyConfirmed();
@@ -672,6 +673,15 @@ contract P2PMarket {
             if (isOfferExpired(offerId)) revert OfferExpiredError();
             if (msg.value < offers[offerId].minAmount) revert InvalidAmount();
             if (msg.value > offers[offerId].amountAvailable) revert InvalidAmount();
+
+            // Offer owner must be a trade party, else a caller could reference
+            // another's offer and drain its amountAvailable (SELL owner=locker, BUY owner=counterparty).
+            Offer storage offer = offers[offerId];
+            if (offer.offerType == OfferType.SELL) {
+                if (msg.sender != offer.owner) revert NotOfferParticipant();
+            } else {
+                if (counterparty != offer.owner) revert NotOfferParticipant();
+            }
         }
 
         uint256 tradeId = ++tradeCounter;
